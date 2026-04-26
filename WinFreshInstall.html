@@ -149,16 +149,16 @@
 
     <div class="footer">
       Files generated locally. Batch files fetched from:<br>
-      <code>github.com/lemur5054/Web_Page/main/batches/</code>
+      <code>github.com/lemur5054/Web_Page/main/database/batches/</code>
     </div>
   </div>
 
   <script>
-    // ⚙️ GITHUB CONFIGURATION
+    // ⚙️ GITHUB CONFIGURATION - UPDATED PATH
     const GITHUB_USER = "lemur5054";
     const GITHUB_REPO = "Web_Page";
     const GITHUB_BRANCH = "main";
-    const BATCH_FOLDER = "batches";
+    const BATCH_FOLDER = "database/batches"; // ← Changed from "batches" to "database/batches"
     
     // Folder name INSIDE the ZIP where batch files will be stored
     const ZIP_BATCH_SUBFOLDER = "CustomTools";
@@ -346,29 +346,6 @@ powershell -NoProfile -ExecutionPolicy Bypass -File "%~dp0Install-MyApps.ps1"
 echo.
 pause`;
 
-// Place this INSIDE generateAndDownload(), right before creating the ZIP:
-const appNames = selectedApps.map(a => `- ${a.name}`).join('\n');
-const batchNames = selectedBatches.map(b => `- ${b.name}`).join('\n');
-const readmeTxt = `FRESH WINDOWS INSTALLER PACKAGE
-==============================
-Generated: ${new Date().toLocaleString()}
-
-📦 SELECTED APPS:
-${appNames || '- None'}
-
-📂 CUSTOM BATCH FILES:
-${batchNames || '- None'}
-
-📖 INSTRUCTIONS:
-1. Run FreshPC-PreFlight.bat (Admin)
-2. Run Run-Installer.bat (Admin)
-3. Copy Custom Catch Files folder to you chosen location, Desktop Recomended
-4. Check Desktop\\AppInstallLog.txt for results
-5. Chat with AI: ollama run qwen3.5:4b
-
-🔗 Source: github.com/lemur5054/Web_Page
-`;
-
     async function generateAndDownload() {
       const selectedApps = appsData.flatMap(cat => cat.items.filter(i => i.selected));
       const selectedBatches = batchData.filter(b => b.selected);
@@ -419,6 +396,29 @@ ${batchNames || '- None'}
         
         const standardApps = selectedApps.filter(item => !item.type).map(app => `    "${app.id}"`).join(",\n");
         const toys = selectedApps.filter(item => item.type);
+
+        // ✅ DYNAMIC README (MOVED INSIDE FUNCTION - FIXES ReferenceError)
+        const appNames = selectedApps.map(a => `- ${a.name}`).join('\n');
+        const batchNames = selectedBatches.map(b => `- ${b.name}`).join('\n');
+        const readmeTxt = `FRESH WINDOWS INSTALLER PACKAGE
+==============================
+Generated: ${new Date().toLocaleString()}
+
+📦 SELECTED APPS:
+${appNames || '- None'}
+
+📂 CUSTOM BATCH FILES:
+${batchNames || '- None'}
+
+📖 INSTRUCTIONS:
+1. Run FreshPC-PreFlight.bat (Admin)
+2. Run Run-Installer.bat (Admin)
+3. Copy CustomTools folder to your chosen location (Desktop recommended)
+4. Check Desktop\\AppInstallLog.txt for results
+5. Chat with AI: ollama run qwen3.5:4b
+
+🔗 Source: github.com/lemur5054/Web_Page
+`;
 
         const psLines = [
           '[Console]::OutputEncoding = [System.Text.Encoding]::UTF8',
@@ -510,7 +510,7 @@ ${batchNames || '- None'}
         zip.file("Install-MyApps.ps1", psLines.join('\n'));
         zip.file("FreshPC-PreFlight.bat", preFlightBat);
         zip.file("Run-Installer.bat", runInstallerBat);
-        zip.file("README.txt", readmeTxt);
+        zip.file("README.txt", readmeTxt); // ← Now uses dynamic readmeTxt
 
         // Add downloaded batch files to ZIP inside the subfolder
         for (const [filename, content] of Object.entries(batchFilesMap)) {
