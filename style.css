@@ -1,0 +1,484 @@
+/* ========================================
+   🎨 ROOT VARIABLES
+   ======================================== */
+:root {
+    /* Default hue (0 = red/pink). Updated by JS slider. */
+    --main-hue: 0;
+    --accent-color: hsl(var(--main-hue), 80%, 75%);
+    --accent-dark: #333;
+}
+
+/* ========================================
+   🌐 GLOBAL STYLES
+   ======================================== */
+html {
+    scroll-behavior: smooth;
+}
+
+body {
+    background-color: #ffffff;
+    color: #333;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    margin: 0;
+    padding: 0;
+    line-height: 1.6;
+}
+
+/* ========================================
+   🏷️ TOP BANNER & HEADER
+   ======================================== */
+.top-banner {
+    width: 100%;
+    background-color: var(--accent-color);
+    padding: 20px 0;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+    position: fixed;
+    top: 0;
+    left: 0;
+    z-index: 1000;
+    transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1), background-color 0.1s ease;
+    will-change: transform;
+}
+
+.header-content {
+    width: 100%;
+    padding: 0 40px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.header-text h1 {
+    font-size: 3em;
+    margin: 0;
+    line-height: 1;
+    color: white;
+}
+
+.subtitle {
+    font-size: 0.9em;
+    margin: 5px 0 0 0;
+    font-weight: bold;
+    text-transform: uppercase;
+    color: white;
+}
+
+/* ========================================
+   🎨 COLOR SLIDER
+   ======================================== */
+.color-picker-container {
+    margin: 0;
+    padding: 5px 15px;
+    background: rgba(255, 255, 255, 0.2);
+    border-radius: 20px;
+}
+
+.hue-slider {
+    -webkit-appearance: none;
+    width: 120px;
+    height: 8px;
+    border-radius: 5px;
+    background: linear-gradient(to right, red, yellow, lime, cyan, blue, magenta, red);
+    cursor: pointer;
+    outline: none;
+}
+
+.hue-slider::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    width: 16px;
+    height: 16px;
+    border-radius: 50%;
+    background: white;
+    box-shadow: 0 0 5px rgba(0, 0, 0, 0.2);
+    cursor: pointer;
+}
+
+/* ========================================
+   🔘 NAVIGATION BUTTONS
+   ======================================== */
+.banner-nav {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 15px;
+    margin-right: 100px;
+}
+
+.nav-buttons-row {
+    display: flex;
+    gap: 10px;
+}
+
+.banner-btn {
+    display: inline-block;
+    text-decoration: none;
+    background: white;
+    color: var(--accent-color);
+    padding: 10px 20px;
+    border-radius: 25px;
+    font-weight: bold;
+    font-size: 0.9em;
+    transition: 0.2s ease;
+    border: none;
+    cursor: pointer;
+}
+
+.banner-btn:hover {
+    background: var(--accent-dark);
+    color: white;
+    transform: translateY(-2px);
+}
+
+/* ========================================
+   📐 MAIN LAYOUT
+   ======================================== */
+.main-wrapper {
+    display: flex;
+    width: 100%;
+    max-width: none;
+    margin: 0 auto;
+    padding-top: 100px;
+}
+
+.sidebar {
+    width: 250px;
+    padding: 40px 20px;
+    border-right: 1px solid #eee;
+    background: white;
+    overflow-y: auto;
+    position: fixed;
+    top: 100px;
+    left: 0;
+    height: calc(100vh - 100px);
+    z-index: 999;
+    transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    will-change: transform;
+}
+
+.content {
+    flex: 1;
+    padding: 0 40px;
+    margin-left: 290px;
+    height: calc(100vh - 100px);
+    overflow-y: auto;
+}
+
+/* ========================================
+   📋 SIDEBAR MENU STYLES
+   ======================================== */
+/* ========================================
+   📋 SIDEBAR MENU STYLES (Modern Look)
+   ======================================== */
+.sidebar {
+    width: 260px; /* Slightly wider for better readability */
+    padding: 40px 30px;
+    border-right: 1px solid #f0f0f0;
+    background: #ffffff;
+    overflow-y: auto;
+    position: fixed;
+    top: 100px;
+    left: 0;
+    height: calc(100vh - 100px);
+    z-index: 999;
+}
+
+.sidebar-menu ul {
+    list-style: none;
+    padding: 0;
+    margin: 0 0 30px 0; /* Space between sections */
+}
+
+.sidebar-menu li {
+    margin-bottom: 8px;
+}
+
+/* Section Titles (HOME, QUICK ACCESS) */
+.menu-title-bold {
+    font-weight: 800;
+    text-transform: uppercase;
+    font-size: 0.85em;
+    color: #8e8ee6; /* Light Purple/Blue from your image */
+    letter-spacing: 1px;
+    margin: 0 0 15px 0;
+    padding-left: 0;
+}
+
+/* Links (Welcome, Minecraft Section) */
+.sidebar-menu a,
+.nav-link {
+    text-decoration: none;
+    color: #555;
+    font-weight: 600;
+    font-size: 1.1em;
+    display: block;
+    padding: 8px 0 8px 15px; /* Left padding creates space for the bar */
+    transition: all 0.2s ease;
+    border-left: 4px solid transparent; /* Hidden bar by default */
+}
+
+/* Hover State */
+.sidebar-menu a:hover,
+.nav-link:hover {
+    color: #8e8ee6;
+    background-color: #f9f9ff;
+}
+
+/* ACTIVE State (The Vertical Bar) */
+.sidebar-menu a.active,
+.nav-link.active {
+    color: #8e8ee6; /* Matches the title color */
+    border-left: 4px solid #8e8ee6; /* The visible vertical bar */
+    background-color: #f9f9ff;
+    font-weight: 700;
+}
+
+/* Separator Line (Optional, if you want lines between sections) */
+.sidebar-menu hr {
+    border: 0;
+    border-top: 1px solid #eee;
+    margin: 20px 0;
+}
+
+/* ========================================
+   📄 CONTENT SECTIONS
+   ======================================== */
+section {
+    min-height: auto; /* Fixed: was 80vh causing huge gaps */
+    padding-top: 40px;
+    padding-bottom: 40px;
+}
+
+.content-group {
+    width: 100%;
+}
+
+/* ========================================
+   🗂️ PROJECT CONTAINER & CARDS
+   ======================================== */
+.projects-container {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 20px;
+    padding: 20px 0;
+    align-items: stretch;
+}
+
+.projects-container h2 {
+    width: 100%;
+    margin-bottom: 20px;
+    color: #333;
+}
+
+.project-card {
+    flex: 1 1 calc(45% - 20px);
+    min-width: 300px;
+    box-sizing: border-box;
+    background: white;
+    border: 1px solid #eee;
+    border-radius: 12px;
+    padding: 25px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    overflow: hidden;
+    transition: transform 0.3s ease, box-shadow 0.3s ease, border-color 0.3s ease;
+    cursor: default;
+}
+
+.project-card:hover {
+    transform: translateY(-10px);
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+    border-color: var(--accent-color);
+}
+
+.project-card:active {
+    transform: translateY(-2px) scale(0.98);
+    transition: 0.1s;
+}
+
+.project-info {
+    text-align: left;
+    margin: 0;
+    padding: 0;
+    width: 100%;
+    flex-grow: 1;
+}
+
+/* ========================================
+   🔗 BUTTONS & LINKS
+   ======================================== */
+.project-link,
+.project-d-link,
+.copy-btn {
+    align-self: flex-start;
+    background: var(--accent-color);
+    color: white;
+    padding: 10px 20px;
+    border-radius: 6px;
+    text-decoration: none;
+    margin-top: auto;
+    font-weight: bold;
+    transition: 0.2s ease;
+    border: none;
+    display: inline-block;
+}
+
+.project-link:hover,
+.project-d-link:hover,
+.copy-btn:hover {
+    transform: translateY(-3px) scale(1.05);
+    filter: brightness(1.2);
+    box-shadow: 0 4px 15px var(--accent-color);
+}
+
+/* ========================================
+   💬 CHAT WINDOW STYLES
+   ======================================== */
+#chat-window {
+    background: #fdfdfd;
+    border: 1px solid #eee;
+    border-radius: 12px;
+    display: flex;
+    flex-direction: column;
+    height: 500px;
+    max-width: 600px;
+    margin: 20px 0;
+}
+
+#messages-display {
+    flex: 1;
+    padding: 20px;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.message {
+    max-width: 70%;
+    padding: 10px 15px;
+    border-radius: 18px;
+    font-size: 0.9em;
+    line-height: 1.4;
+}
+
+.sent {
+    align-self: flex-end;
+    background-color: var(--accent-color);
+    color: white;
+    border-bottom-right-radius: 4px;
+}
+
+#chat-form {
+    padding: 15px;
+    border-top: 1px solid #eee;
+    display: flex;
+    gap: 10px;
+}
+
+#message-input {
+    flex: 1;
+    border: 1px solid #ddd;
+    padding: 10px 15px;
+    border-radius: 20px;
+    outline: none;
+    font-size: 0.95em;
+}
+
+/* ========================================
+   🧩 DATAPACK / PLUGIN STYLES
+   ======================================== */
+.plugin-header {
+    font-size: 1.5em;
+    font-weight: bold;
+    margin-bottom: 20px;
+    color: #333;
+    border-bottom: 2px solid var(--accent-color);
+    padding-bottom: 10px;
+    transition: border-color 0.1s ease;
+}
+
+.datapack-item {
+    margin-bottom: 20px;
+    padding-bottom: 20px;
+    border-bottom: 1px solid #f0f0f0;
+}
+
+.datapack-name {
+    font-weight: bold;
+    font-size: 1.1em;
+    margin-bottom: 8px;
+    color: #333;
+}
+
+.datapack-desc {
+    color: #666;
+    line-height: 1.6;
+}
+
+code {
+    background: #f4f4f4;
+    padding: 2px 6px;
+    border-radius: 4px;
+    font-family: 'Courier New', monospace;
+    font-size: 0.9em;
+}
+
+/* ========================================
+   ➖ UTILITIES
+   ======================================== */
+hr {
+    border: 0;
+    border-top: 1px solid #eee;
+    margin: 20px 0;
+}
+
+/* ========================================
+   📱 RESPONSIVE ADJUSTMENTS
+   ======================================== */
+@media (max-width: 1024px) {
+    .sidebar {
+        position: static;
+        height: auto;
+        width: 100%;
+        border-right: none;
+        border-bottom: 1px solid #eee;
+    }
+
+    .content {
+        margin-left: 0;
+        height: auto;
+        padding: 20px;
+    }
+
+    .header-content {
+        flex-direction: column;
+        gap: 15px;
+        padding: 0 20px;
+    }
+
+    .banner-nav {
+        margin-right: 0;
+        align-items: center;
+    }
+
+    .project-card {
+        flex: 1 1 100%;
+    }
+}
+
+@media (max-width: 600px) {
+    .header-text h1 {
+        font-size: 2em;
+    }
+
+    .banner-btn {
+        font-size: 0.85em;
+        padding: 8px 16px;
+    }
+
+    .hue-slider {
+        width: 100px;
+    }
+}

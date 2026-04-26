@@ -1,0 +1,444 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Fresh Windows Installer Generator</title>
+  <style>
+    :root {
+      --bg: #0f1115;
+      --card: #181b21;
+      --border: #2a2f3a;
+      --text: #e6e8eb;
+      --muted: #8b92a5;
+      --accent: #3b82f6;
+      --accent-hover: #2563eb;
+      --success: #22c55e;
+      --warning: #f59e0b;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.5;
+      padding: 2rem 1rem;
+    }
+    .container { max-width: 900px; margin: 0 auto; }
+    h1 { font-size: 1.8rem; margin-bottom: 0.5rem; }
+    p.subtitle { color: var(--muted); margin-bottom: 2rem; }
+    
+    .category {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 1rem;
+      margin-bottom: 1rem;
+    }
+    .category h3 {
+      font-size: 1rem;
+      color: var(--accent);
+      margin-bottom: 0.75rem;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+    .app-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+      gap: 0.75rem;
+    }
+    .app-item {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.5rem;
+      border-radius: 6px;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+    .app-item:hover { background: rgba(255,255,255,0.05); }
+    .app-item input[type="checkbox"] {
+      width: 18px; height: 18px;
+      accent-color: var(--accent);
+      cursor: pointer;
+    }
+    .app-item label {
+      cursor: pointer;
+      font-size: 0.95rem;
+      user-select: none;
+    }
+
+    .controls {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.75rem;
+      margin: 2rem 0;
+      align-items: center;
+    }
+    button {
+      background: var(--card);
+      border: 1px solid var(--border);
+      color: var(--text);
+      padding: 0.6rem 1rem;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 0.9rem;
+      transition: all 0.2s;
+    }
+    button:hover { border-color: var(--muted); }
+    button.primary {
+      background: var(--accent);
+      border-color: var(--accent);
+      font-weight: 600;
+    }
+    button.primary:hover { background: var(--accent-hover); }
+    button:disabled { opacity: 0.5; cursor: not-allowed; }
+    
+    .status {
+      margin-top: 1rem;
+      padding: 1rem;
+      border-radius: 8px;
+      display: none;
+    }
+    .footer {
+      margin-top: 3rem;
+      text-align: center;
+      color: var(--muted);
+      font-size: 0.85rem;
+      border-top: 1px solid var(--border);
+      padding-top: 1rem;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>🖥️ Fresh Windows Installer Generator</h1>
+    <p class="subtitle">Select apps, then download a ready-to-run ZIP package for fresh Windows installs.</p>
+
+    <div id="app-container"></div>
+
+    <div class="controls">
+      <button onclick="toggleAll(true)">Select All</button>
+      <button onclick="toggleAll(false)">Deselect All</button>
+      <button class="primary" id="downloadBtn" onclick="generateAndDownload()">📦 Download Complete ZIP Package</button>
+    </div>
+
+    <div id="status" class="status"></div>
+
+    <div class="footer">
+      Files are generated locally in your browser. No data is sent to any server.<br>
+      Extract the ZIP on Windows 10/11 and run as Administrator.
+    </div>
+  </div>
+
+  <script>
+    // 📦 App Database
+    const appsData = [
+      {
+        category: "⚙️ Runtimes (Required)",
+        items: [
+          { name: "Edge WebView2", id: "Microsoft.EdgeWebView2Runtime", selected: true },
+          { name: "VC++ Redistributable 2015+", id: "Microsoft.VCRedist.2015+.x64", selected: true }
+        ]
+      },
+      {
+        category: "🌐 Browsers",
+        items: [
+          { name: "Mozilla Firefox", id: "Mozilla.Firefox", selected: true },
+          { name: "Google Chrome", id: "Google.Chrome", selected: true },
+          { name: "Brave Browser", id: "Brave.Brave", selected: true }
+        ]
+      },
+      {
+        category: "🛠️ Utilities & Dev",
+        items: [
+          { name: "Notepad++", id: "Notepad++.Notepad++", selected: true },
+          { name: "VS Code", id: "Microsoft.VisualStudioCode", selected: true },
+          { name: "7-Zip", id: "7zip.7zip", selected: true },
+          { name: "WinRAR", id: "RARLab.WinRAR", selected: true },
+          { name: "Rufus", id: "Rufus.Rufus", selected: true },
+          { name: "Wise Program Uninstaller", id: "WiseCleaner.WiseProgramUninstaller", selected: true },
+          { name: "WinDirStat", id: "WinDirStat.WinDirStat", selected: true }
+        ]
+      },
+      {
+        category: "🎬 Media & Streaming",
+        items: [
+          { name: "Spotify", id: "Spotify.Spotify", selected: true },
+          { name: "VLC Media Player", id: "VideoLAN.VLC", selected: true },
+          { name: "OBS Studio", id: "OBSProject.OBSStudio", selected: true }
+        ]
+      },
+      {
+        category: "🎮 Gaming & Chat",
+        items: [
+          { name: "Discord PTB", id: "Discord.Discord.PTB", selected: true },
+          { name: "Steam", id: "Valve.Steam", selected: true }
+        ]
+      },
+      {
+        category: "🤖 AI Environment",
+        items: [
+          { name: "Ollama + Qwen 3.5 (4B)", id: "Ollama.Ollama", selected: true }
+        ]
+      }
+    ];
+
+    const container = document.getElementById('app-container');
+    const statusEl = document.getElementById('status');
+    const downloadBtn = document.getElementById('downloadBtn');
+
+    // 🖼️ Render UI (Runs immediately on load)
+    function renderApps() {
+      container.innerHTML = appsData.map((cat, cIdx) => `
+        <div class="category">
+          <h3>
+            ${cat.category}
+            <label style="margin-left:auto; font-size:0.8rem; color:var(--muted); cursor:pointer;">
+              <input type="checkbox" onchange="toggleCategory(${cIdx}, this.checked)" ${cat.items.every(i=>i.selected)?'checked':''}> 
+              Select All in Group
+            </label>
+          </h3>
+          <div class="app-grid">
+            ${cat.items.map((app, aIdx) => `
+              <div class="app-item">
+                <input type="checkbox" id="app-${cIdx}-${aIdx}" ${app.selected ? 'checked' : ''} 
+                  onchange="toggleApp(${cIdx}, ${aIdx}, this.checked)">
+                <label for="app-${cIdx}-${aIdx}">${app.name}</label>
+              </div>
+            `).join('')}
+          </div>
+        </div>
+      `).join('');
+    }
+
+    function toggleCategory(cIdx, state) {
+      appsData[cIdx].items.forEach(app => app.selected = state);
+      renderApps();
+    }
+    function toggleApp(cIdx, aIdx, state) {
+      appsData[cIdx].items[aIdx].selected = state;
+      renderApps();
+    }
+    function toggleAll(state) {
+      appsData.forEach(cat => cat.items.forEach(app => app.selected = state));
+      renderApps();
+    }
+
+    // 📜 File Templates (Safe string construction)
+    const preFlightBat = `@echo off
+setlocal
+net session >nul 2>&1
+if %errorLevel% neq 0 (
+    echo Requesting administrator privileges...
+    powershell -Command "Start-Process '%~f0' -Verb RunAs"
+    exit /b
+)
+chcp 65001 >nul
+echo ========================================
+echo    Fresh Windows Pre-Flight Fix
+echo ========================================
+echo.
+echo Automating:
+echo  [1] Microsoft Store & App Installer initialization
+echo  [2] PowerShell execution policy configuration
+echo  [3] Winget source reset & package index update
+echo.
+echo Please wait... (do not close this window)
+echo.
+echo [1/3] Initializing Store components...
+powershell -NoProfile -ExecutionPolicy Bypass -Command "Get-AppxPackage -Name Microsoft.WindowsStore | ForEach-Object { Add-AppxPackage -DisableDevelopmentMode -Register \"$($_.InstallLocation)\AppXManifest.xml\" } 2>$null" >nul 2>&1
+timeout /t 2 >nul
+echo ✅ Store components registered.
+echo [2/3] Configuring PowerShell execution policy...
+powershell -NoProfile -ExecutionPolicy Bypass -Command "Set-ExecutionPolicy RemoteSigned -Scope CurrentUser -Force 2>$null" >nul 2>&1
+echo ✅ Execution policy configured.
+echo [3/3] Resetting and updating winget sources...
+powershell -NoProfile -ExecutionPolicy Bypass -Command "winget source reset --force" 2>&1 | findstr /v /i "copyright"
+powershell -NoProfile -ExecutionPolicy Bypass -Command "winget source update" 2>&1 | findstr /v /i "copyright"
+echo ✅ Winget ready.
+echo.
+echo ========================================
+echo    ✅ Pre-Flight Complete!
+echo ========================================
+echo.
+echo Your system is ready. Run Run-Installer.bat next.
+echo Tip: If winget still fails, reboot once and retry.
+echo.
+pause`;
+
+    const runInstallerBat = `@echo off
+setlocal
+net session >nul 2>&1
+if %errorLevel% neq 0 (
+    echo Requesting administrator privileges...
+    powershell -Command "Start-Process '%~f0' -Verb RunAs"
+    exit /b
+)
+chcp 65001 >nul
+echo ========================================
+echo    Fresh Windows App Installer
+echo ========================================
+echo.
+set "SCRIPT_DIR=%~dp0"
+powershell -NoProfile -ExecutionPolicy Bypass -File "%SCRIPT_DIR%Install-MyApps.ps1"
+echo.
+echo ========================================
+echo    Installation Finished
+echo ========================================
+pause`;
+
+    const readmeTxt = `FRESH WINDOWS INSTALLER PACKAGE
+==============================
+1. Run FreshPC-PreFlight.bat (Admin) -> Initializes winget & Store components
+2. Run Run-Installer.bat (Admin) -> Installs selected apps + Qwen AI model
+3. Check Desktop\\AppInstallLog.txt for results
+4. Chat with AI: ollama run qwen3.5:4b
+
+Note: Always run Windows Update & reboot once before starting on fresh installs.
+`;
+
+    // 📥 Generate & Download ZIP
+    async function generateAndDownload() {
+      const selected = appsData.flatMap(cat => cat.items.filter(i => i.selected));
+      if (selected.length === 0) {
+        statusEl.textContent = "⚠️ Please select at least one app before downloading.";
+        statusEl.style.display = "block";
+        statusEl.style.background = "rgba(245, 158, 11, 0.1)";
+        statusEl.style.borderColor = "var(--warning)";
+        statusEl.style.color = "var(--warning)";
+        return;
+      }
+      statusEl.style.display = "none";
+      downloadBtn.disabled = true;
+      downloadBtn.textContent = "⏳ Loading ZIP engine...";
+
+      try {
+        // Dynamically load JSZip only when needed
+        if (!window.JSZip) {
+          const script = document.createElement('script');
+          script.src = 'https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js';
+          document.head.appendChild(script);
+          await new Promise((resolve, reject) => {
+            script.onload = resolve;
+            script.onerror = () => reject(new Error('Failed to load ZIP library'));
+          });
+        }
+
+        downloadBtn.textContent = "⏳ Building package...";
+        const appList = selected.map(app => `    "${app.id}"`).join(",\n");
+        
+        // Safe PS script generation (escaped $ for PowerShell)
+        const psLines = [
+          '[Console]::OutputEncoding = [System.Text.Encoding]::UTF8',
+          '',
+          'if (-NOT ([Security.Principal.WindowsPrincipal][Security.Principal.WindowsIdentity]::GetCurrent()).IsInRole([Security.Principal.WindowsBuiltInRole] "Administrator")) {',
+          '    Write-Host "[ERROR] Please run this script as Administrator!" -ForegroundColor Red',
+          '    Read-Host "Press Enter to exit"',
+          '    exit',
+          '}',
+          '',
+          '$LogPath = "$env:USERPROFILE\\Desktop\\AppInstallLog.txt"',
+          '"=== App Installation Started: $(Get-Date) ===" | Out-File -FilePath $LogPath -Append',
+          '',
+          'Write-Host "Initializing winget package sources..." -ForegroundColor Cyan',
+          'winget source reset --force 2>&1 | Out-Null',
+          'winget source update 2>&1 | Out-Null',
+          'Start-Sleep -Seconds 3',
+          '',
+          '$Apps = @(',
+          appList,
+          ')',
+          '',
+          'foreach ($App in $Apps) {',
+          '    Write-Host "`n[INSTALLING] $App" -ForegroundColor Cyan',
+          '    Write-Host "--------------------------------------------------" -ForegroundColor DarkGray',
+          '    & winget install --id $App --force --accept-package-agreements --accept-source-agreements --source winget',
+          '    $exitCode = $LASTEXITCODE',
+          '    if ($exitCode -eq 0) {',
+          '        Write-Host "[SUCCESS] $App" -ForegroundColor Green',
+          '        "SUCCESS: $App | $(Get-Date)" | Out-File -FilePath $LogPath -Append',
+          '    } else {',
+          '        Write-Host "[FAILED] $App (Exit Code: $exitCode)" -ForegroundColor Red',
+          '        "FAILED: $App (Code: $exitCode) | $(Get-Date)" | Out-File -FilePath $LogPath -Append',
+          '    }',
+          '    Write-Host "--------------------------------------------------`n" -ForegroundColor DarkGray',
+          '}',
+          '',
+          '$OllamaPath = "$env:LOCALAPPDATA\\Programs\\Ollama\\ollama.exe"',
+          '$SelectedModel = $null',
+          'if (Test-Path $OllamaPath) {',
+          '    Write-Host "`n[AI SETUP] Initializing Ollama service..." -ForegroundColor Cyan',
+          '    Start-Process -FilePath $OllamaPath -WindowStyle Hidden',
+          '    Start-Sleep -Seconds 5',
+          '    $ModelOptions = @("qwen3.5:4b", "qwen3.5:1.7b")',
+          '    foreach ($Model in $ModelOptions) {',
+          '        Write-Host "Downloading model: $Model ..." -ForegroundColor Cyan',
+          '        & $OllamaPath pull $Model 2>&1 | Out-Null',
+          '        if ($LASTEXITCODE -eq 0) {',
+          '            Write-Host "[SUCCESS] Model ready: $Model" -ForegroundColor Green',
+          '            $SelectedModel = $Model',
+          '            break',
+          '        }',
+          '    }',
+          '    if ($SelectedModel) {',
+          '        Write-Host "[READY] Run your AI with: ollama run $SelectedModel" -ForegroundColor Green',
+          '    } else {',
+          '        Write-Host "[WARNING] Model download failed. Run manually: ollama pull qwen3.5:4b" -ForegroundColor Yellow',
+          '    }',
+          '} else {',
+          '    Write-Host "[WARNING] Ollama executable not found." -ForegroundColor Yellow',
+          '}',
+          '',
+          'Write-Host "`n[UPDATING] Checking for app updates..." -ForegroundColor Cyan',
+          'winget upgrade --all --silent --accept-package-agreements --accept-source-agreements 2>&1 | Out-Null',
+          'Write-Host "[SUCCESS] Auto-update complete." -ForegroundColor Green',
+          '',
+          'Write-Host "`n========================================" -ForegroundColor Green',
+          'Write-Host " ALL INSTALLATIONS COMPLETE" -ForegroundColor Green',
+          'Write-Host " Check $LogPath for detailed results" -ForegroundColor Green',
+          'Write-Host "========================================`n" -ForegroundColor Green',
+          'Read-Host "Press Enter to close"'
+        ];
+
+        const psContent = psLines.join('\n');
+        const zip = new JSZip();
+        zip.file("Install-MyApps.ps1", psContent);
+        zip.file("FreshPC-PreFlight.bat", preFlightBat);
+        zip.file("Run-Installer.bat", runInstallerBat);
+        zip.file("README.txt", readmeTxt);
+
+        const content = await zip.generateAsync({type:"blob"});
+        const url = URL.createObjectURL(content);
+        const a = document.createElement("a");
+        a.href = url;
+        a.download = "FreshWindows-Installer.zip";
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+
+        statusEl.textContent = "✅ ZIP downloaded successfully! Extract and run as Administrator.";
+        statusEl.style.display = "block";
+        statusEl.style.background = "rgba(34, 197, 94, 0.1)";
+        statusEl.style.borderColor = "var(--success)";
+        statusEl.style.color = "var(--success)";
+      } catch (err) {
+        console.error(err);
+        statusEl.textContent = "❌ Error: " + err.message;
+        statusEl.style.display = "block";
+        statusEl.style.background = "rgba(239, 68, 68, 0.1)";
+        statusEl.style.borderColor = "#ef4444";
+        statusEl.style.color = "#ef4444";
+      } finally {
+        downloadBtn.disabled = false;
+        downloadBtn.textContent = "📦 Download Complete ZIP Package";
+      }
+    }
+
+    // Initialize UI immediately
+    renderApps();
+  </script>
+</body>
+</html>

@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>About Me - thelemur55</title>
+    <link rel="apple-touch-icon" sizes="180x180" href="database/webpage_icon/apple-touch-icon.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="database/webpage_icon/favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="database/webpage_icon/favicon-16x16.png">
+    <link rel="manifest" href="database/webpage_icon/site.webmanifest">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<!-- TOP BANNER -->
+<div class="top-banner">
+    <header class="main-header">
+        <div class="header-content">
+            <div class="header-text">
+                <h1>thelemur55</h1>
+                <p class="subtitle">About Me</p>
+            </div>
+            <nav class="banner-nav">
+                <!-- Color Slider -->
+                <div class="color-picker-container">
+                    <input type="range" min="0" max="360" value="0" class="hue-slider" id="hueSlider">
+                </div>
+
+                <!-- Navigation Buttons -->
+                <div class="nav-buttons-row">
+                    <a href="index.html" class="banner-btn">Home</a>
+                    <a href="links.html" class="banner-btn">Links</a>
+                    <a href="about_me.html" class="banner-btn">About Me</a>
+                </div>
+            </nav>
+        </div>
+    </header>
+</div>
+
+<!-- MAIN LAYOUT WRAPPER -->
+<div class="main-wrapper">
+    
+    <!-- SIDEBAR --> 
+    <aside class="sidebar">
+        <nav class="sidebar-menu">
+            <p class="menu-title-bold">Navigation</p>
+            <ul>
+                <li><a href="#about-me" class="nav-link">About Me</a></li>
+                <li><a href="#projects" class="nav-link">Projects</a></li>
+                <li><a href="#contact" class="nav-link">Contact</a></li>
+            </ul>
+        </nav>
+    </aside>
+
+    <!-- MAIN CONTENT AREA -->
+    <main class="content">
+
+        <!-- About Me Section -->
+        <section id="about-me">
+            <h2>About Me</h2>
+            <p>Hello! I'm thelemur55, a developer who loves building tools, websites, and Minecraft content.</p>
+            <p>I enjoy creating automated installers, datapacks, and sharing knowledge with the community.</p>
+        </section>
+
+        <!-- Projects Section -->
+        <section id="projects" class="projects-container">
+            <h2>My Projects</h2>
+            
+            <div class="project-card">
+                <div class="project-info">
+                    <h3>Chill Town MC Page</h3>
+                    <p>This website was created by me for my friend to get information about their Minecraft server.</p>
+                    <a href="https://neocities.org" target="_blank" class="project-link">See Page →</a>
+                </div>
+            </div>
+            
+            <div class="project-card">
+                <div class="project-info">
+                    <h3>Minecraft Section</h3>
+                    <p>Go to the Minecraft page to see datapacks, mods, etc. I have created.</p>
+                    <a href="minecraft.html" class="project-link">Go to Section →</a>
+                </div>
+            </div>
+        </section>
+
+        <!-- Contact Section -->
+        <section id="contact">
+            <h2>Contact Me</h2>
+            <p>Feel free to reach out!</p>
+            <ul>
+                <li><strong>GitHub:</strong> <a href="https://github.com/lemur5054" target="_blank">@lemur5054</a></li>
+                <li><strong>Email:</strong> lemur@example.com</li>
+            </ul>
+        </section>
+
+    </main>
+</div>
+
+<script src="script.js"></script>
+
+</body>
+</html>

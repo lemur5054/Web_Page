@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Minecraft - thelemur55</title>
+    <link rel="apple-touch-icon" sizes="180x180" href="../database/webpage_icon/apple-touch-icon.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="../database/webpage_icon/favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="../database/webpage_icon/favicon-16x16.png">
+    <link rel="manifest" href="../database/webpage_icon/site.webmanifest">
+    <link rel="stylesheet" href="../style.css">
+</head>
+<body>
+
+<!-- TOP BANNER -->
+<div class="top-banner">
+    <header class="main-header">
+        <div class="header-content">
+            <div class="header-text">
+                <h1>thelemur55</h1>
+                <p class="subtitle">Minecraft</p>
+            </div>
+            <nav class="banner-nav">
+                <!-- Color Slider -->
+                <div class="color-picker-container">
+                    <input type="range" min="0" max="360" value="0" class="hue-slider" id="hueSlider">
+                </div>
+
+                <!-- Navigation Buttons -->
+                <div class="nav-buttons-row">
+                    <a href="../index.html" class="banner-btn">Home</a>
+                    <a href="../links.html" class="banner-btn">Links</a>
+                    <a href="../about_me.html" class="banner-btn">About Me</a>
+                </div>
+            </nav>
+        </div>
+    </header>
+</div>
+
+<!-- MAIN LAYOUT WRAPPER -->
+<div class="main-wrapper">
+    
+    <!-- SIDEBAR --> 
+    <aside class="sidebar">
+        <nav class="sidebar-menu">
+            <p class="menu-title-bold">MINECRAFT</p>
+            <ul>
+                <li><a href="../index.html" class="nav-link">← Back to Home</a></li>
+            </ul>
+            <hr>
+            
+            <p class="menu-title-bold">Creating Addons</p>
+            <ul>
+                <li><a href="#C-datapack" class="nav-link">Creating Datapacks</a></li>
+                <li><a href="#C-mods" class="nav-link">Creating Mods</a></li>
+            </ul>
+            
+            <p class="menu-title-bold">Server Hosting</p>
+            <ul>
+                <li><a href="#SH-SH" class="nav-link">Server Hosts</a></li>
+                <li><a href="#SH-SU" class="nav-link">Setting Up Your Server</a></li>
+                <li><a href="#Optifine-Install" class="nav-link">Optifine Install</a></li>
+            </ul>
+        </nav>
+    </aside>
+
+    <!-- MAIN CONTENT AREA -->
+    <main class="content">
+
+        <!-- Datapack Creation -->
+        <section id="C-datapack" class="projects-container">
+            <h2>Creating Datapacks</h2>
+            <div class="project-card">
+                <div class="project-info">
+                    <h3>Single Join Message</h3>
+                    <p>A simple datapack that sends a custom message when a player joins the server for the first time.</p>
+                    <a href="https://github.com/lemur5054/Single-Join-Message" target="_blank" class="project-link">View on GitHub →</a>
+                    <a href="https://github.com/lemur5054/Single-Join-Message/archive/refs/heads/main.zip" target="_blank" class="project-link">Download →</a>
+                </div>
+            </div>
+        </section>
+
+        <!-- Mod Creation -->
+        <section id="C-mods" class="projects-container">
+            <h2>Creating Mods</h2>
+            <p>Coming soon! I'll share my modding tutorials and projects here.</p>
+        </section>
+
+        <!-- Server Hosts -->
+        <section id="SH-SH" class="projects-container">
+            <h2>Recommended Server Hosts</h2>
+            <div class="project-card">
+                <div class="project-info">
+                    <h3>Aternos</h3>
+                    <p>Free Minecraft server hosting. Great for testing and small groups.</p>
+                    <a href="https://aternos.org" target="_blank" class="project-link">Visit Aternos →</a>
+                </div>
+            </div>
+            <div class="project-card">
+                <div class="project-info">
+                    <h3>BisectHosting</h3>
+                    <p>Paid hosting with great performance and support.</p>
+                    <a href="https://bisecthosting.com" target="_blank" class="project-link">Visit Bisect →</a>
+                </div>
+            </div>
+        </section>
+
+        <!-- Setting Up Your Server -->
+        <section id="SH-SU" class="projects-container">
+            <h2>Setting Up Your Server</h2>
+            <ol>
+                <li>Download the latest <a href="https://www.minecraft.net/en-us/download/server" target="_blank">Minecraft server JAR</a></li>
+                <li>Create a folder and place the JAR inside</li>
+                <li>Run the JAR once to generate files, then accept the EULA</li>
+                <li>Configure `server.properties` to your liking</li>
+                <li>Port forward (if hosting locally) or use a hosting service</li>
+                <li>Start your server and invite friends!</li>
+            </ol>
+        </section>
+
+            <!-- Optifine Install Section -->
+            <section id="Optifine-Install">
+                <div id="content-one">Loading section one...</div>
+                <hr>
+                <div id="content-two">Loading section two...</div>  
+            </section>
+
+    </main>
+</div>
+
+<script src="../script.js"></script>
+
+</body>
+</html>
