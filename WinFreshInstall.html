@@ -154,11 +154,14 @@
   </div>
 
   <script>
-    // ⚙️ GITHUB CONFIGURATION - Pre-filled for lemur5054/Web_Page
+    // ⚙️ GITHUB CONFIGURATION
     const GITHUB_USER = "lemur5054";
     const GITHUB_REPO = "Web_Page";
     const GITHUB_BRANCH = "main";
     const BATCH_FOLDER = "batches";
+    
+    // Folder name INSIDE the ZIP where batch files will be stored
+    const ZIP_BATCH_SUBFOLDER = "CustomTools";
 
     const BATCH_LIST_URL = `https://raw.githubusercontent.com/${GITHUB_USER}/${GITHUB_REPO}/${GITHUB_BRANCH}/${BATCH_FOLDER}/list.json`;
     const BATCH_FILE_URL = `https://raw.githubusercontent.com/${GITHUB_USER}/${GITHUB_REPO}/${GITHUB_BRANCH}/${BATCH_FOLDER}/`;
@@ -447,15 +450,33 @@ Batch files sourced from: github.com/lemur5054/Web_Page/main/batches/
           psLines.push('');
         });
 
-        // --- Copy Batch Files to Desktop ---
+        // --- Copy Batch Files to Desktop (From Subfolder) ---
         if (Object.keys(batchFilesMap).length > 0) {
           psLines.push('# --- Copy Custom Batch Files to Desktop ---');
+          psLines.push('Write-Host "`n[TOYS] Copying selected batch files to Desktop..." -ForegroundColor Magenta');
           psLines.push('$DesktopPath = [Environment]::GetFolderPath("Desktop")');
-          psLines.push('$ScriptDir = Split-Path -Parent $MyInvocation.MyCommand.Path');
+          psLines.push('$ScriptDir = $PSScriptRoot');
+          psLines.push('if (-not $ScriptDir) { $ScriptDir = Split-Path -Parent $MyInvocation.MyCommand.Definition }');
+          psLines.push(`$BatchFolder = Join-Path $ScriptDir "${ZIP_BATCH_SUBFOLDER}"`);
+          psLines.push('');
           
           Object.keys(batchFilesMap).forEach(filename => {
-            psLines.push(`Copy-Item -Path "$ScriptDir\\${filename}" -Destination "$DesktopPath\\${filename}" -Force`);
-            psLines.push(`"COPIED: ${filename} to Desktop" | Out-File -FilePath $LogPath -Append`);
+            psLines.push(`$SourceFile = Join-Path $BatchFolder "${filename}"`);
+            psLines.push(`$DestFile = Join-Path $DesktopPath "${filename}"`);
+            psLines.push(`Write-Host "  Copying: ${filename} ..." -ForegroundColor Cyan`);
+            psLines.push(`if (Test-Path $SourceFile) {`);
+            psLines.push(`    try {`);
+            psLines.push(`        Copy-Item -Path $SourceFile -Destination $DestFile -Force -ErrorAction Stop`);
+            psLines.push(`        Write-Host "  ✅ Copied to Desktop" -ForegroundColor Green`);
+            psLines.push(`        "COPIED: ${filename} to Desktop" | Out-File -FilePath $LogPath -Append`);
+            psLines.push(`    } catch {`);
+            psLines.push(`        Write-Host "  ❌ Error: $_" -ForegroundColor Red`);
+            psLines.push(`        "ERROR copying ${filename}: $_" | Out-File -FilePath $LogPath -Append`);
+            psLines.push(`    }`);
+            psLines.push(`} else {`);
+            psLines.push(`    Write-Host "  ⚠️ Source not found: $SourceFile" -ForegroundColor Yellow`);
+            psLines.push(`    "WARNING: Source not found: $SourceFile" | Out-File -FilePath $LogPath -Append`);
+            psLines.push(`}`);
           });
           psLines.push('');
         }
@@ -478,9 +499,9 @@ Batch files sourced from: github.com/lemur5054/Web_Page/main/batches/
         zip.file("Run-Installer.bat", runInstallerBat);
         zip.file("README.txt", readmeTxt);
 
-        // Add downloaded batch files to ZIP
+        // Add downloaded batch files to ZIP inside the subfolder
         for (const [filename, content] of Object.entries(batchFilesMap)) {
-          zip.file(filename, content);
+          zip.file(`${ZIP_BATCH_SUBFOLDER}/${filename}`, content);
         }
 
         const content = await zip.generateAsync({type:"blob"});
