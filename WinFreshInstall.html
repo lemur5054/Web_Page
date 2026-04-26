@@ -15,6 +15,8 @@
       --accent-hover: #2563eb;
       --success: #22c55e;
       --warning: #f59e0b;
+      --toy-accent: #d946ef;
+      --batch-accent: #f59e0b;
     }
     * { box-sizing: border-box; margin: 0; padding: 0; }
     body {
@@ -43,6 +45,9 @@
       align-items: center;
       gap: 0.5rem;
     }
+    .category.toys h3 { color: var(--toy-accent); }
+    .category.batches h3 { color: var(--batch-accent); }
+
     .app-grid {
       display: grid;
       grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
@@ -63,10 +68,20 @@
       accent-color: var(--accent);
       cursor: pointer;
     }
+    .category.toys .app-item input[type="checkbox"] { accent-color: var(--toy-accent); }
+    .category.batches .app-item input[type="checkbox"] { accent-color: var(--batch-accent); }
+    
     .app-item label {
       cursor: pointer;
       font-size: 0.95rem;
       user-select: none;
+      display: flex;
+      flex-direction: column;
+    }
+    .app-desc {
+      font-size: 0.8rem;
+      color: var(--muted);
+      margin-top: 2px;
     }
 
     .controls {
@@ -114,9 +129,15 @@
 <body>
   <div class="container">
     <h1>🖥️ Fresh Windows Installer Generator</h1>
-    <p class="subtitle">Select apps, then download a ready-to-run ZIP package for fresh Windows installs.</p>
+    <p class="subtitle">Select apps, tweaks, and custom batch files from lemur5054/Web_Page.</p>
 
     <div id="app-container"></div>
+
+    <!-- Dynamic Batch Files Section -->
+    <div id="batch-container" class="category batches" style="display:none;">
+      <h3>📂 Custom Batch Files <span style="font-size:0.8rem; color:var(--muted); margin-left:auto;">From GitHub</span></h3>
+      <div class="app-grid" id="batch-grid"></div>
+    </div>
 
     <div class="controls">
       <button onclick="toggleAll(true)">Select All</button>
@@ -127,12 +148,21 @@
     <div id="status" class="status"></div>
 
     <div class="footer">
-      Files are generated locally in your browser. No data is sent to any server.<br>
-      Extract the ZIP on Windows 10/11 and run as Administrator.
+      Files generated locally. Batch files fetched from:<br>
+      <code>github.com/lemur5054/Web_Page/main/batches/</code>
     </div>
   </div>
 
   <script>
+    // ⚙️ GITHUB CONFIGURATION - Pre-filled for lemur5054/Web_Page
+    const GITHUB_USER = "lemur5054";
+    const GITHUB_REPO = "Web_Page";
+    const GITHUB_BRANCH = "main";
+    const BATCH_FOLDER = "batches";
+
+    const BATCH_LIST_URL = `https://raw.githubusercontent.com/${GITHUB_USER}/${GITHUB_REPO}/${GITHUB_BRANCH}/${BATCH_FOLDER}/list.json`;
+    const BATCH_FILE_URL = `https://raw.githubusercontent.com/${GITHUB_USER}/${GITHUB_REPO}/${GITHUB_BRANCH}/${BATCH_FOLDER}/`;
+
     // 📦 App Database
     const appsData = [
       {
@@ -182,17 +212,30 @@
         items: [
           { name: "Ollama + Qwen 3.5 (4B)", id: "Ollama.Ollama", selected: true }
         ]
+      },
+      {
+        category: "🧸 Custom Windows Toys",
+        isToy: true,
+        items: [
+          { name: "Disable Telemetry (Script)", type: "script", id: "DisableTelemetry", selected: false },
+          { name: "Show File Extensions (Reg)", type: "reg", id: "ShowFileExt", selected: false },
+          { name: "Dark Mode Default (Reg)", type: "reg", id: "DarkMode", selected: false },
+          { name: "Remove Edge Shortcut (Script)", type: "script", id: "RemoveEdgeShortcut", selected: false },
+          { name: "Install PowerToys", id: "Microsoft.PowerToys", selected: false }
+        ]
       }
     ];
 
+    let batchData = [];
     const container = document.getElementById('app-container');
+    const batchContainer = document.getElementById('batch-container');
+    const batchGrid = document.getElementById('batch-grid');
     const statusEl = document.getElementById('status');
     const downloadBtn = document.getElementById('downloadBtn');
 
-    // 🖼️ Render UI (Runs immediately on load)
     function renderApps() {
       container.innerHTML = appsData.map((cat, cIdx) => `
-        <div class="category">
+        <div class="category ${cat.isToy ? 'toys' : ''}">
           <h3>
             ${cat.category}
             <label style="margin-left:auto; font-size:0.8rem; color:var(--muted); cursor:pointer;">
@@ -213,6 +256,49 @@
       `).join('');
     }
 
+    // 📡 Fetch Batch List from GitHub
+    async function fetchBatches() {
+      try {
+        const url = `${BATCH_LIST_URL}?t=${Date.now()}`;
+        const response = await fetch(url);
+        
+        if (!response.ok) {
+          if (response.status === 404) {
+            throw new Error(`list.json not found. Create it at:\n${BATCH_LIST_URL.replace('?t='+Date.now(),'')}`);
+          }
+          throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+        }
+        
+        batchData = await response.json();
+        
+        if (batchData.length > 0) {
+          batchContainer.style.display = 'block';
+          renderBatches();
+          console.log(`✅ Loaded ${batchData.length} batch files from GitHub`);
+        }
+      } catch (err) {
+        console.error("❌ Could not load batch files:", err);
+        statusEl.textContent = `⚠️ ${err.message}`;
+        statusEl.style.display = "block";
+        statusEl.style.background = "rgba(245, 158, 11, 0.1)";
+        statusEl.style.borderColor = "var(--warning)";
+        statusEl.style.color = "var(--warning)";
+      }
+    }
+
+    function renderBatches() {
+      batchGrid.innerHTML = batchData.map((batch, bIdx) => `
+        <div class="app-item">
+          <input type="checkbox" id="batch-${bIdx}" ${batch.selected ? 'checked' : ''} 
+            onchange="toggleBatch(${bIdx}, this.checked)">
+          <label for="batch-${bIdx}">
+            ${batch.name}
+            <span class="app-desc">${batch.description || batch.file}</span>
+          </label>
+        </div>
+      `).join('');
+    }
+
     function toggleCategory(cIdx, state) {
       appsData[cIdx].items.forEach(app => app.selected = state);
       renderApps();
@@ -221,89 +307,58 @@
       appsData[cIdx].items[aIdx].selected = state;
       renderApps();
     }
+    function toggleBatch(bIdx, state) {
+      batchData[bIdx].selected = state;
+    }
     function toggleAll(state) {
       appsData.forEach(cat => cat.items.forEach(app => app.selected = state));
+      batchData.forEach(batch => batch.selected = state);
       renderApps();
+      renderBatches();
     }
 
-    // 📜 File Templates (Safe string construction)
     const preFlightBat = `@echo off
 setlocal
 net session >nul 2>&1
 if %errorLevel% neq 0 (
-    echo Requesting administrator privileges...
     powershell -Command "Start-Process '%~f0' -Verb RunAs"
     exit /b
 )
 chcp 65001 >nul
-echo ========================================
-echo    Fresh Windows Pre-Flight Fix
-echo ========================================
-echo.
-echo Automating:
-echo  [1] Microsoft Store & App Installer initialization
-echo  [2] PowerShell execution policy configuration
-echo  [3] Winget source reset & package index update
-echo.
-echo Please wait... (do not close this window)
-echo.
-echo [1/3] Initializing Store components...
-powershell -NoProfile -ExecutionPolicy Bypass -Command "Get-AppxPackage -Name Microsoft.WindowsStore | ForEach-Object { Add-AppxPackage -DisableDevelopmentMode -Register \"$($_.InstallLocation)\AppXManifest.xml\" } 2>$null" >nul 2>&1
-timeout /t 2 >nul
-echo ✅ Store components registered.
-echo [2/3] Configuring PowerShell execution policy...
+powershell -NoProfile -ExecutionPolicy Bypass -Command "Get-AppxPackage -Name Microsoft.WindowsStore | ForEach-Object { Add-AppxPackage -DisableDevelopmentMode -Register \\"$($_.InstallLocation)\\AppXManifest.xml\\" } 2>$null" >nul 2>&1
 powershell -NoProfile -ExecutionPolicy Bypass -Command "Set-ExecutionPolicy RemoteSigned -Scope CurrentUser -Force 2>$null" >nul 2>&1
-echo ✅ Execution policy configured.
-echo [3/3] Resetting and updating winget sources...
-powershell -NoProfile -ExecutionPolicy Bypass -Command "winget source reset --force" 2>&1 | findstr /v /i "copyright"
-powershell -NoProfile -ExecutionPolicy Bypass -Command "winget source update" 2>&1 | findstr /v /i "copyright"
-echo ✅ Winget ready.
-echo.
-echo ========================================
-echo    ✅ Pre-Flight Complete!
-echo ========================================
-echo.
-echo Your system is ready. Run Run-Installer.bat next.
-echo Tip: If winget still fails, reboot once and retry.
-echo.
-pause`;
+powershell -NoProfile -ExecutionPolicy Bypass -Command "winget source reset --force; winget source update" 2>&1 | findstr /v /i "copyright" >nul
+exit`;
 
     const runInstallerBat = `@echo off
 setlocal
 net session >nul 2>&1
 if %errorLevel% neq 0 (
-    echo Requesting administrator privileges...
     powershell -Command "Start-Process '%~f0' -Verb RunAs"
     exit /b
 )
 chcp 65001 >nul
-echo ========================================
-echo    Fresh Windows App Installer
-echo ========================================
+title Fresh Windows Installer
+powershell -NoProfile -ExecutionPolicy Bypass -File "%~dp0Install-MyApps.ps1"
 echo.
-set "SCRIPT_DIR=%~dp0"
-powershell -NoProfile -ExecutionPolicy Bypass -File "%SCRIPT_DIR%Install-MyApps.ps1"
-echo.
-echo ========================================
-echo    Installation Finished
-echo ========================================
 pause`;
 
     const readmeTxt = `FRESH WINDOWS INSTALLER PACKAGE
 ==============================
-1. Run FreshPC-PreFlight.bat (Admin) -> Initializes winget & Store components
-2. Run Run-Installer.bat (Admin) -> Installs selected apps + Qwen AI model
-3. Check Desktop\\AppInstallLog.txt for results
+1. Run FreshPC-PreFlight.bat (Admin) -> Initializes winget & Store
+2. Run Run-Installer.bat (Admin) -> Installs apps, tweaks, and copies custom batch files to Desktop.
+3. Check Desktop\\AppInstallLog.txt for results.
 4. Chat with AI: ollama run qwen3.5:4b
 
-Note: Always run Windows Update & reboot once before starting on fresh installs.
+Batch files sourced from: github.com/lemur5054/Web_Page/main/batches/
 `;
 
-    // 📥 Generate & Download ZIP
     async function generateAndDownload() {
-      const selected = appsData.flatMap(cat => cat.items.filter(i => i.selected));
-      if (selected.length === 0) {
-        statusEl.textContent = "⚠️ Please select at least one app before downloading.";
+      const selectedApps = appsData.flatMap(cat => cat.items.filter(i => i.selected));
+      const selectedBatches = batchData.filter(b => b.selected);
+      
+      if (selectedApps.length === 0 && selectedBatches.length === 0) {
+        statusEl.textContent = "⚠️ Please select at least one item.";
         statusEl.style.display = "block";
         statusEl.style.background = "rgba(245, 158, 11, 0.1)";
         statusEl.style.borderColor = "var(--warning)";
@@ -312,10 +367,9 @@ Note: Always run Windows Update & reboot once before starting on fresh installs.
       }
       statusEl.style.display = "none";
       downloadBtn.disabled = true;
-      downloadBtn.textContent = "⏳ Loading ZIP engine...";
+      downloadBtn.textContent = "⏳ Fetching from GitHub...";
 
       try {
-        // Dynamically load JSZip only when needed
         if (!window.JSZip) {
           const script = document.createElement('script');
           script.src = 'https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js';
@@ -326,88 +380,108 @@ Note: Always run Windows Update & reboot once before starting on fresh installs.
           });
         }
 
+        // Fetch selected batch files from GitHub Raw
+        const batchFilesMap = {};
+        if (selectedBatches.length > 0) {
+          const fetchPromises = selectedBatches.map(async (batch) => {
+            try {
+              const url = `${BATCH_FILE_URL}${batch.file}?t=${Date.now()}`;
+              const res = await fetch(url);
+              if (!res.ok) throw new Error(`HTTP ${res.status} for ${batch.file}`);
+              const text = await res.text();
+              batchFilesMap[batch.file] = text;
+              console.log(`✅ Fetched: ${batch.file}`);
+            } catch (e) {
+              console.error(`❌ Failed to fetch ${batch.file}:`, e);
+              alert(`Warning: Could not download ${batch.file}. It will be skipped.`);
+            }
+          });
+          await Promise.all(fetchPromises);
+        }
+
         downloadBtn.textContent = "⏳ Building package...";
-        const appList = selected.map(app => `    "${app.id}"`).join(",\n");
         
-        // Safe PS script generation (escaped $ for PowerShell)
+        const standardApps = selectedApps.filter(item => !item.type).map(app => `    "${app.id}"`).join(",\n");
+        const toys = selectedApps.filter(item => item.type);
+
         const psLines = [
           '[Console]::OutputEncoding = [System.Text.Encoding]::UTF8',
           '',
-          'if (-NOT ([Security.Principal.WindowsPrincipal][Security.Principal.WindowsIdentity]::GetCurrent()).IsInRole([Security.Principal.WindowsBuiltInRole] "Administrator")) {',
-          '    Write-Host "[ERROR] Please run this script as Administrator!" -ForegroundColor Red',
-          '    Read-Host "Press Enter to exit"',
-          '    exit',
-          '}',
+          'if (-NOT ([Security.Principal.WindowsPrincipal][Security.Principal.WindowsIdentity]::GetCurrent()).IsInRole([Security.Principal.WindowsBuiltInRole] "Administrator")) { exit }',
           '',
           '$LogPath = "$env:USERPROFILE\\Desktop\\AppInstallLog.txt"',
-          '"=== App Installation Started: $(Get-Date) ===" | Out-File -FilePath $LogPath -Append',
+          '"=== Install Started: $(Get-Date) ===" | Out-File -FilePath $LogPath -Append',
           '',
-          'Write-Host "Initializing winget package sources..." -ForegroundColor Cyan',
           'winget source reset --force 2>&1 | Out-Null',
           'winget source update 2>&1 | Out-Null',
-          'Start-Sleep -Seconds 3',
           '',
+          '# --- Standard Apps ---',
           '$Apps = @(',
-          appList,
+          standardApps || '    # No standard apps',
           ')',
           '',
           'foreach ($App in $Apps) {',
+          '    if ($App -eq "# No standard apps") { continue }',
           '    Write-Host "`n[INSTALLING] $App" -ForegroundColor Cyan',
-          '    Write-Host "--------------------------------------------------" -ForegroundColor DarkGray',
           '    & winget install --id $App --force --accept-package-agreements --accept-source-agreements --source winget',
-          '    $exitCode = $LASTEXITCODE',
-          '    if ($exitCode -eq 0) {',
-          '        Write-Host "[SUCCESS] $App" -ForegroundColor Green',
-          '        "SUCCESS: $App | $(Get-Date)" | Out-File -FilePath $LogPath -Append',
-          '    } else {',
-          '        Write-Host "[FAILED] $App (Exit Code: $exitCode)" -ForegroundColor Red',
-          '        "FAILED: $App (Code: $exitCode) | $(Get-Date)" | Out-File -FilePath $LogPath -Append',
-          '    }',
-          '    Write-Host "--------------------------------------------------`n" -ForegroundColor DarkGray',
+          '    if ($LASTEXITCODE -eq 0) { "SUCCESS: $App" | Out-File -FilePath $LogPath -Append }',
+          '    else { "FAILED: $App" | Out-File -FilePath $LogPath -Append }',
           '}',
           '',
-          '$OllamaPath = "$env:LOCALAPPDATA\\Programs\\Ollama\\ollama.exe"',
-          '$SelectedModel = $null',
-          'if (Test-Path $OllamaPath) {',
-          '    Write-Host "`n[AI SETUP] Initializing Ollama service..." -ForegroundColor Cyan',
-          '    Start-Process -FilePath $OllamaPath -WindowStyle Hidden',
-          '    Start-Sleep -Seconds 5',
-          '    $ModelOptions = @("qwen3.5:4b", "qwen3.5:1.7b")',
-          '    foreach ($Model in $ModelOptions) {',
-          '        Write-Host "Downloading model: $Model ..." -ForegroundColor Cyan',
-          '        & $OllamaPath pull $Model 2>&1 | Out-Null',
-          '        if ($LASTEXITCODE -eq 0) {',
-          '            Write-Host "[SUCCESS] Model ready: $Model" -ForegroundColor Green',
-          '            $SelectedModel = $Model',
-          '            break',
-          '        }',
-          '    }',
-          '    if ($SelectedModel) {',
-          '        Write-Host "[READY] Run your AI with: ollama run $SelectedModel" -ForegroundColor Green',
-          '    } else {',
-          '        Write-Host "[WARNING] Model download failed. Run manually: ollama pull qwen3.5:4b" -ForegroundColor Yellow',
-          '    }',
-          '} else {',
-          '    Write-Host "[WARNING] Ollama executable not found." -ForegroundColor Yellow',
-          '}',
-          '',
-          'Write-Host "`n[UPDATING] Checking for app updates..." -ForegroundColor Cyan',
-          'winget upgrade --all --silent --accept-package-agreements --accept-source-agreements 2>&1 | Out-Null',
-          'Write-Host "[SUCCESS] Auto-update complete." -ForegroundColor Green',
-          '',
-          'Write-Host "`n========================================" -ForegroundColor Green',
-          'Write-Host " ALL INSTALLATIONS COMPLETE" -ForegroundColor Green',
-          'Write-Host " Check $LogPath for detailed results" -ForegroundColor Green',
-          'Write-Host "========================================`n" -ForegroundColor Green',
-          'Read-Host "Press Enter to close"'
+          '# --- Custom Toys ---'
         ];
 
-        const psContent = psLines.join('\n');
+        toys.forEach(toy => {
+          psLines.push(`# Toy: ${toy.name}`);
+          if (toy.id === "DisableTelemetry") {
+             psLines.push('New-Item -Path "HKLM:\\SOFTWARE\\Policies\\Microsoft\\Windows\\DataCollection" -Force | Out-Null');
+             psLines.push('Set-ItemProperty -Path "HKLM:\\SOFTWARE\\Policies\\Microsoft\\Windows\\DataCollection" -Name "AllowTelemetry" -Value 0 -Type DWord -Force');
+          } else if (toy.id === "ShowFileExt") {
+             psLines.push('Set-ItemProperty -Path "HKCU:\\Software\\Microsoft\\Windows\\CurrentVersion\\Explorer\\Advanced" -Name "HideFileExt" -Value 0 -Type DWord -Force');
+          } else if (toy.id === "DarkMode") {
+             psLines.push('Set-ItemProperty -Path "HKCU:\\Software\\Microsoft\\Windows\\CurrentVersion\\Themes\\Personalize" -Name "AppsUseLightTheme" -Value 0 -Type DWord -Force');
+             psLines.push('Set-ItemProperty -Path "HKCU:\\Software\\Microsoft\\Windows\\CurrentVersion\\Themes\\Personalize" -Name "SystemUsesLightTheme" -Value 0 -Type DWord -Force');
+          } else if (toy.id === "RemoveEdgeShortcut") {
+             psLines.push('Remove-Item -Path "$env:USERPROFILE\\Desktop\\Microsoft Edge.lnk" -ErrorAction SilentlyContinue');
+          }
+          psLines.push('');
+        });
+
+        // --- Copy Batch Files to Desktop ---
+        if (Object.keys(batchFilesMap).length > 0) {
+          psLines.push('# --- Copy Custom Batch Files to Desktop ---');
+          psLines.push('$DesktopPath = [Environment]::GetFolderPath("Desktop")');
+          psLines.push('$ScriptDir = Split-Path -Parent $MyInvocation.MyCommand.Path');
+          
+          Object.keys(batchFilesMap).forEach(filename => {
+            psLines.push(`Copy-Item -Path "$ScriptDir\\${filename}" -Destination "$DesktopPath\\${filename}" -Force`);
+            psLines.push(`"COPIED: ${filename} to Desktop" | Out-File -FilePath $LogPath -Append`);
+          });
+          psLines.push('');
+        }
+
+        // Ollama Setup
+        psLines.push('$OllamaPath = "$env:LOCALAPPDATA\\Programs\\Ollama\\ollama.exe"');
+        psLines.push('if (Test-Path $OllamaPath) {');
+        psLines.push('    Start-Process -FilePath $OllamaPath -WindowStyle Hidden -ArgumentList "serve"');
+        psLines.push('    Start-Sleep -Seconds 5');
+        psLines.push('    & $OllamaPath pull qwen3.5:4b 2>&1 | Out-Null');
+        psLines.push('    "Ollama Setup Complete" | Out-File -FilePath $LogPath -Append');
+        psLines.push('}');
+        
+        psLines.push('Write-Host "`n[COMPLETE] Finished. Check Desktop for logs and batch files." -ForegroundColor Green');
+        psLines.push('"=== Install Complete: $(Get-Date) ===" | Out-File -FilePath $LogPath -Append');
+
         const zip = new JSZip();
-        zip.file("Install-MyApps.ps1", psContent);
+        zip.file("Install-MyApps.ps1", psLines.join('\n'));
         zip.file("FreshPC-PreFlight.bat", preFlightBat);
         zip.file("Run-Installer.bat", runInstallerBat);
         zip.file("README.txt", readmeTxt);
+
+        // Add downloaded batch files to ZIP
+        for (const [filename, content] of Object.entries(batchFilesMap)) {
+          zip.file(filename, content);
+        }
 
         const content = await zip.generateAsync({type:"blob"});
         const url = URL.createObjectURL(content);
@@ -419,7 +493,7 @@ Note: Always run Windows Update & reboot once before starting on fresh installs.
         document.body.removeChild(a);
         URL.revokeObjectURL(url);
 
-        statusEl.textContent = "✅ ZIP downloaded successfully! Extract and run as Administrator.";
+        statusEl.textContent = "✅ ZIP downloaded! Batch files will be copied to Desktop during install.";
         statusEl.style.display = "block";
         statusEl.style.background = "rgba(34, 197, 94, 0.1)";
         statusEl.style.borderColor = "var(--success)";
@@ -437,8 +511,9 @@ Note: Always run Windows Update & reboot once before starting on fresh installs.
       }
     }
 
-    // Initialize UI immediately
+    // Initialize
     renderApps();
+    fetchBatches();
   </script>
 </body>
 </html>
