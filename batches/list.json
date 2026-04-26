@@ -1,4 +1,7 @@
 [
-  { "name": "Clean Temp Files", "file": "TEMP.bat", "description": "Deletes %TEMP% contents" },
-  { "name": "WinTools", "file": "WinTool.bat", "description": "Flushes DNS and resets IP" }
+  {
+    "name": "Clean Temp Files",
+    "file": "TEMP.bat",
+    "description": "Deletes temp files and clears recycle bin"
+  }
 ]
