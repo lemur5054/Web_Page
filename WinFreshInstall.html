@@ -346,14 +346,27 @@ powershell -NoProfile -ExecutionPolicy Bypass -File "%~dp0Install-MyApps.ps1"
 echo.
 pause`;
 
-    const readmeTxt = `FRESH WINDOWS INSTALLER PACKAGE
+// Place this INSIDE generateAndDownload(), right before creating the ZIP:
+const appNames = selectedApps.map(a => `- ${a.name}`).join('\n');
+const batchNames = selectedBatches.map(b => `- ${b.name}`).join('\n');
+const readmeTxt = `FRESH WINDOWS INSTALLER PACKAGE
 ==============================
-1. Run FreshPC-PreFlight.bat (Admin) -> Initializes winget & Store
-2. Run Run-Installer.bat (Admin) -> Installs apps, tweaks, and copies custom batch files to Desktop.
-3. Check Desktop\\AppInstallLog.txt for results.
-4. Chat with AI: ollama run qwen3.5:4b
+Generated: ${new Date().toLocaleString()}
 
-Batch files sourced from: github.com/lemur5054/Web_Page/main/batches/
+📦 SELECTED APPS:
+${appNames || '- None'}
+
+📂 CUSTOM BATCH FILES:
+${batchNames || '- None'}
+
+📖 INSTRUCTIONS:
+1. Run FreshPC-PreFlight.bat (Admin)
+2. Run Run-Installer.bat (Admin)
+3. Copy Custom Catch Files folder to you chosen location, Desktop Recomended
+4. Check Desktop\\AppInstallLog.txt for results
+5. Chat with AI: ollama run qwen3.5:4b
+
+🔗 Source: github.com/lemur5054/Web_Page
 `;
 
     async function generateAndDownload() {
