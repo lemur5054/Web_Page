@@ -2,7 +2,6 @@
    🎨 ROOT VARIABLES
    ======================================== */
 :root {
-    /* Default hue (0 = red/pink). Updated by JS slider. */
     --main-hue: 0;
     --accent-color: hsl(var(--main-hue), 80%, 75%);
     --accent-dark: #333;
@@ -36,8 +35,7 @@ body {
     top: 0;
     left: 0;
     z-index: 1000;
-    transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1), background-color 0.1s ease;
-    will-change: transform;
+    transition: background-color 0.1s ease;
 }
 
 .header-content {
@@ -135,42 +133,12 @@ body {
 .main-wrapper {
     display: flex;
     width: 100%;
-    max-width: none;
     margin: 0 auto;
     padding-top: 100px;
 }
 
 .sidebar {
-    width: 250px;
-    padding: 40px 20px;
-    border-right: 1px solid #eee;
-    background: white;
-    overflow-y: auto;
-    position: fixed;
-    top: 100px;
-    left: 0;
-    height: calc(100vh - 100px);
-    z-index: 999;
-    transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-    will-change: transform;
-}
-
-.content {
-    flex: 1;
-    padding: 0 40px;
-    margin-left: 290px;
-    height: calc(100vh - 100px);
-    overflow-y: auto;
-}
-
-/* ========================================
-   📋 SIDEBAR MENU STYLES
-   ======================================== */
-/* ========================================
-   📋 SIDEBAR MENU STYLES (Modern Look)
-   ======================================== */
-.sidebar {
-    width: 260px; /* Slightly wider for better readability */
+    width: 260px;
     padding: 40px 30px;
     border-right: 1px solid #f0f0f0;
     background: #ffffff;
@@ -182,74 +150,68 @@ body {
     z-index: 999;
 }
 
+.content {
+    flex: 1;
+    padding: 0 40px;
+    margin-left: 300px;
+    height: calc(100vh - 100px);
+    overflow-y: auto;
+}
+
+/* ========================================
+   📋 SIDEBAR MENU (MODERN LOOK)
+   ======================================== */
 .sidebar-menu ul {
     list-style: none;
     padding: 0;
-    margin: 0 0 30px 0; /* Space between sections */
+    margin: 0 0 25px 0;
 }
 
 .sidebar-menu li {
     margin-bottom: 8px;
 }
 
-/* Section Titles (HOME, QUICK ACCESS) */
 .menu-title-bold {
     font-weight: 800;
     text-transform: uppercase;
     font-size: 0.85em;
-    color: #8e8ee6; /* Light Purple/Blue from your image */
+    color: #8e8ee6;
     letter-spacing: 1px;
-    margin: 0 0 15px 0;
-    padding-left: 0;
+    margin: 0 0 12px 0;
 }
 
-/* Links (Welcome, Minecraft Section) */
 .sidebar-menu a,
 .nav-link {
     text-decoration: none;
     color: #555;
     font-weight: 600;
-    font-size: 1.1em;
+    font-size: 1.05em;
     display: block;
-    padding: 8px 0 8px 15px; /* Left padding creates space for the bar */
+    padding: 6px 0 6px 12px;
     transition: all 0.2s ease;
-    border-left: 4px solid transparent; /* Hidden bar by default */
+    border-left: 4px solid transparent;
 }
 
-/* Hover State */
 .sidebar-menu a:hover,
 .nav-link:hover {
     color: #8e8ee6;
     background-color: #f9f9ff;
 }
 
-/* ACTIVE State (The Vertical Bar) */
 .sidebar-menu a.active,
 .nav-link.active {
-    color: #8e8ee6; /* Matches the title color */
-    border-left: 4px solid #8e8ee6; /* The visible vertical bar */
+    color: #8e8ee6;
+    border-left: 4px solid #8e8ee6;
     background-color: #f9f9ff;
     font-weight: 700;
-}
-
-/* Separator Line (Optional, if you want lines between sections) */
-.sidebar-menu hr {
-    border: 0;
-    border-top: 1px solid #eee;
-    margin: 20px 0;
 }
 
 /* ========================================
    📄 CONTENT SECTIONS
    ======================================== */
 section {
-    min-height: auto; /* Fixed: was 80vh causing huge gaps */
-    padding-top: 40px;
-    padding-bottom: 40px;
-}
-
-.content-group {
-    width: 100%;
+    min-height: auto;
+    padding: 40px 0;
 }
 
 /* ========================================
@@ -298,11 +260,8 @@ section {
 }
 
 .project-info {
-    text-align: left;
-    margin: 0;
-    padding: 0;
-    width: 100%;
     flex-grow: 1;
+    margin-bottom: 15px;
 }
 
 /* ========================================
@@ -317,7 +276,6 @@ section {
     padding: 10px 20px;
     border-radius: 6px;
     text-decoration: none;
-    margin-top: auto;
     font-weight: bold;
     transition: 0.2s ease;
     border: none;
@@ -333,7 +291,7 @@ section {
 }
 
 /* ========================================
-   💬 CHAT WINDOW STYLES
+   💬 CHAT WINDOW (Optional)
    ======================================== */
 #chat-window {
     background: #fdfdfd;
@@ -396,7 +354,6 @@ section {
     color: #333;
     border-bottom: 2px solid var(--accent-color);
     padding-bottom: 10px;
-    transition: border-color 0.1s ease;
 }
 
 .datapack-item {
@@ -445,40 +402,27 @@ hr {
         border-right: none;
         border-bottom: 1px solid #eee;
     }
-
     .content {
         margin-left: 0;
         height: auto;
         padding: 20px;
     }
-
     .header-content {
         flex-direction: column;
         gap: 15px;
         padding: 0 20px;
     }
-
     .banner-nav {
         margin-right: 0;
         align-items: center;
     }
-
     .project-card {
         flex: 1 1 100%;
     }
 }
 
 @media (max-width: 600px) {
-    .header-text h1 {
-        font-size: 2em;
-    }
-
-    .banner-btn {
-        font-size: 0.85em;
-        padding: 8px 16px;
-    }
-
-    .hue-slider {
-        width: 100px;
-    }
+    .header-text h1 { font-size: 2em; }
+    .banner-btn { font-size: 0.85em; padding: 8px 16px; }
+    .hue-slider { width: 100px; }
 }
