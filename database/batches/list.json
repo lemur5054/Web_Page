@@ -1,0 +1,7 @@
+[
+  {
+    "name": "Clean Temp Files",
+    "file": "TEMP.bat",
+    "description": "Deletes temp files and clears recycle bin"
+  }
+]
