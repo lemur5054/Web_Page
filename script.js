@@ -39,3 +39,29 @@ const observer = new IntersectionObserver((entries) => {
 }, { root: document.querySelector('.content'), rootMargin: '-10% 0px -80% 0px' });
 
 sections.forEach(section => observer.observe(section));
+
+
+
+// Reusable function to load HTML
+function loadHTML(fileName, elementId) {
+  fetch(fileName)
+    .then(response => {
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      return response.text();
+    })
+    .then(data => {
+      document.getElementById(elementId).innerHTML = data;
+    })
+    .catch(error => {
+      console.error(`Error loading ${fileName}:`, error);
+      document.getElementById(elementId).innerHTML = 'Failed to load content.';
+    });
+}
+
+// Call the function for each file you want to load
+loadHTML('optifine-forge.html', 'content-one');
+loadHTML('optifine-McLauncher.html', 'content-two');
+loadHTML('setup_server.html', 'content-three');
+loadHTML('brain_teasers.html', 'content-four');

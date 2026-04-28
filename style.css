@@ -29,7 +29,7 @@ body {
 .top-banner {
     width: 100%;
     background-color: var(--accent-color);
-    padding: 20px 0;
+    padding: 5px 0;
     box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
     position: fixed;
     top: 0;
@@ -96,7 +96,7 @@ body {
    ======================================== */
 .banner-nav {
     display: flex;
-    flex-direction: column;
+    flex-direction: row;
     align-items: flex-end;
     gap: 15px;
     margin-right: 100px;
@@ -134,7 +134,7 @@ body {
     display: flex;
     width: 100%;
     margin: 0 auto;
-    padding-top: 100px;
+    padding-top: 80px;
 }
 
 .sidebar {
@@ -220,8 +220,7 @@ section {
 .projects-container {
     display: flex;
     flex-wrap: wrap;
-    gap: 20px;
-    padding: 20px 0;
+    gap: 20px;  
     align-items: stretch;
 }
 
@@ -238,7 +237,7 @@ section {
     background: white;
     border: 1px solid #eee;
     border-radius: 12px;
-    padding: 25px;
+    padding: 0px 25px 0px 25px;
     box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
     display: flex;
     flex-direction: column;
@@ -268,7 +267,7 @@ section {
    🔗 BUTTONS & LINKS
    ======================================== */
 .project-link,
-.project-d-link,
+
 .copy-btn {
     align-self: flex-start;
     background: var(--accent-color);
@@ -283,7 +282,7 @@ section {
 }
 
 .project-link:hover,
-.project-d-link:hover,
+
 .copy-btn:hover {
     transform: translateY(-3px) scale(1.05);
     filter: brightness(1.2);
@@ -426,3 +425,14 @@ hr {
     .banner-btn { font-size: 0.85em; padding: 8px 16px; }
     .hue-slider { width: 100px; }
 }
+
+
+.h2u {
+    border-bottom: 2px solid var(--accent-color); /* Thickness, style, and color */
+    padding-bottom: 10px; /* Space between the text and the line */
+}
+
+.small-text {
+    font-size: 13px; /* Reduced from the default 16px */
+}
+
