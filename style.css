@@ -134,7 +134,7 @@ body {
     display: flex;
     width: 100%;
     margin: 0 auto;
-    padding-top: 80px;
+    padding-top: 50px;
 }
 
 .sidebar {
@@ -154,7 +154,7 @@ body {
     flex: 1;
     padding: 0 40px;
     margin-left: 300px;
-    height: calc(100vh - 100px);
+    height: calc(100vh - 40px);
     overflow-y: auto;
 }
 
